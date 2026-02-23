@@ -1,0 +1,194 @@
+{
+  "identity": {
+    "name": "CloudVault",
+    "persona": "The Digital Architect",
+    "tone": "Secure, Precise, Timeless",
+    "metaphor": "A Swiss Bank Vault made of Glass"
+  },
+  "typography": {
+    "primary_font": "Manrope",
+    "secondary_font": "Inter",
+    "mono_font": "JetBrains Mono",
+    "scale": {
+      "h1": "text-4xl font-bold tracking-tight lg:text-5xl",
+      "h2": "text-3xl font-semibold tracking-tight",
+      "h3": "text-2xl font-semibold tracking-tight",
+      "p": "leading-7 [&:not(:first-child)]:mt-6",
+      "small": "text-sm font-medium leading-none",
+      "muted": "text-sm text-muted-foreground"
+    },
+    "imports": [
+      "@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');"
+    ]
+  },
+  "colors": {
+    "theme": "light",
+    "palette": {
+      "primary": {
+        "name": "Indigo Trust",
+        "tailwind": "indigo",
+        "hex": "#4f46e5"
+      },
+      "secondary": {
+        "name": "Slate Structure",
+        "tailwind": "slate",
+        "hex": "#64748b"
+      },
+      "accent": {
+        "name": "Emerald Safe",
+        "tailwind": "emerald",
+        "hex": "#10b981"
+      },
+      "background": {
+        "light": "#ffffff",
+        "dark": "#020617"
+      },
+      "surface": {
+        "light": "#f8fafc",
+        "dark": "#0f172a"
+      }
+    },
+    "usage": {
+      "dashboard_bg": "bg-slate-50 dark:bg-slate-950",
+      "card_bg": "bg-white dark:bg-slate-900",
+      "text_primary": "text-slate-900 dark:text-slate-50",
+      "text_secondary": "text-slate-500 dark:text-slate-400",
+      "border_subtle": "border-slate-200 dark:border-slate-800"
+    }
+  },
+  "layout_strategy": {
+    "dashboard": "Bento Grid Mode B (High Density)",
+    "container": "max-w-7xl mx-auto p-4 md:p-8",
+    "spacing": {
+      "section_gap": "gap-8",
+      "card_padding": "p-6",
+      "internal_gap": "gap-4"
+    },
+    "grid_config": "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6",
+    "z_index": {
+      "modal": "z-50",
+      "dropdown": "z-40",
+      "sticky_nav": "z-30",
+      "content": "z-10"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5",
+      "secondary": "bg-white text-slate-900 border border-slate-200 hover:bg-slate-50 shadow-sm",
+      "destructive": "bg-red-500 hover:bg-red-600 text-white",
+      "ghost": "hover:bg-slate-100 text-slate-600 hover:text-slate-900"
+    },
+    "cards": {
+      "default": "rounded-xl border border-slate-200 bg-white text-slate-950 shadow-sm transition-shadow hover:shadow-md",
+      "interactive": "cursor-pointer hover:border-indigo-200 hover:ring-2 hover:ring-indigo-100/50"
+    },
+    "inputs": {
+      "default": "flex h-10 w-full rounded-md border border-slate-300 bg-transparent px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    },
+    "tables": {
+      "wrapper": "rounded-md border border-slate-200 overflow-hidden",
+      "header": "bg-slate-50 text-slate-500 font-medium",
+      "row": "hover:bg-slate-50/50 transition-colors border-b border-slate-100 last:border-0"
+    }
+  },
+  "visual_enhancers": {
+    "shadows": {
+      "card": "shadow-[0_2px_8px_rgba(0,0,0,0.04)]",
+      "float": "shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
+    },
+    "borders": {
+      "subtle": "border border-slate-100",
+      "active": "border-l-4 border-l-indigo-500"
+    },
+    "glass": "bg-white/70 backdrop-blur-lg border border-white/20 shadow-sm",
+    "gradients": {
+      "subtle_fade": "bg-gradient-to-b from-slate-50 to-white"
+    }
+  },
+  "motion": {
+    "duration": {
+      "fast": "150ms",
+      "normal": "300ms",
+      "slow": "500ms"
+    },
+    "ease": "cubic-bezier(0.16, 1, 0.3, 1)",
+    "stagger_delay": 0.05,
+    "variants": {
+      "fade_in": {
+        "initial": { "opacity": 0, "y": 10 },
+        "animate": { "opacity": 1, "y": 0 }
+      },
+      "scale_up": {
+        "initial": { "scale": 0.95, "opacity": 0 },
+        "animate": { "scale": 1, "opacity": 1 }
+      }
+    }
+  },
+  "icons": {
+    "library": "lucide-react",
+    "style": "stroke-[1.5px]",
+    "mapping": {
+      "dashboard": "LayoutDashboard",
+      "files": "FolderOpen",
+      "upload": "CloudUpload",
+      "history": "History",
+      "settings": "Settings",
+      "download": "Download",
+      "restore": "RotateCcw",
+      "trash": "Trash2",
+      "user": "User",
+      "logout": "LogOut",
+      "file_type": {
+        "pdf": "FileText",
+        "image": "Image",
+        "code": "FileCode",
+        "default": "File"
+      }
+    }
+  },
+  "image_urls": {
+    "logo": "https://images.unsplash.com/photo-1614064641938-3e8212d069e4?auto=format&fit=crop&q=80&w=100&h=100",
+    "empty_state_upload": "https://images.unsplash.com/photo-1595776613215-fe04b78645d7?auto=format&fit=crop&q=80&w=800&h=600",
+    "empty_state_files": "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&q=80&w=800&h=600",
+    "hero_background": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=1600"
+  },
+  "accessibility": {
+    "rules": [
+      "Ensure 4.5:1 contrast ratio for normal text",
+      "Interactive elements must have focus states (ring-2 ring-offset-2)",
+      "All images must have alt text",
+      "Forms must have labels (use label element)",
+      "Use semantic HTML (main, section, nav, article)"
+    ]
+  },
+  "instructions_to_main_agent": {
+    "general": "Follow the 'Bento Grid' layout for the dashboard. Use 'Manrope' for all headings. Keep the interface clean and 'Swiss-style' - lots of whitespace, strong alignment, minimal decoration.",
+    "dashboard_page": "Implement a high-density grid. Top left: Storage Summary (Circular or Bar progress). Top Right: Quick Upload (Dropzone). Bottom: Recent Files Table.",
+    "upload_flow": "Use a drag-and-drop zone with a dashed border. Show a progress list for uploads. Allow cancelling.",
+    "file_list": "Use a clean table. Columns: Name, Size, Type, Uploaded, Version, Actions. Actions column should use a DropdownMenu.",
+    "versioning": "When clicking a file, show a sidebar or modal with 'Version History'. List versions with timestamps and 'Restore' buttons.",
+    "tech_stack_rules": "Use FastAPI for backend. React + Tailwind + Shadcn for frontend. Use 'lucide-react' for icons."
+  },
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "You tend to converge toward generic, 'on distribution' outputs. In frontend design, this creates what users call the 'AI slop' aesthetic. Avoid this: make creative, distinctive frontends that surprise and delight.",
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy",
+    "Use glass-morphism effects with backdrop filters (12-24px blur)",
+    "You MUST NOT apply universal transition. Eg: 'transition: all'. This results in breaking transforms. Always add transitions for specific interactive elements like button, input excluding transforms",
+    "You MUST NOT center align the app container, ie do not add '.App { text-align: center; }' in the css file. This disrupts the human natural reading flow of text",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations & color relevant to the app style",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠💭💡🔮 etc for icons.",
+    "Every interaction needs micro-animations - hover states, transitions, parallax effects, and entrance animations. Static = dead.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "Subtle grain textures, noise overlays, custom cursors, selection states, and loading animations: separates good from extraordinary.",
+    "Main agent relies on these image URLs. Missing categories (especially sponsor logos) = main agent will use placeholder text which is FORBIDDEN",
+    "Prioritize using pre-existing components from src/components/ui when applicable",
+    "Create new components that match the style and conventions of existing components when needed",
+    "Components MUST use named exports",
+    "Pages MUST use default exports",
+    "Use 'sonner' for toasts",
+    "All interactive and key informational elements MUST include a 'data-testid' attribute"
+  ]
+}
