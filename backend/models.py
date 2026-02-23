@@ -40,7 +40,7 @@ class FileUploadResponse(BaseModel):
     id: str
     filename: str
     size: int
-    version_id: str
+    version_id: Optional[str] = None
     uploaded_at: datetime
 
 class FileListResponse(BaseModel):
