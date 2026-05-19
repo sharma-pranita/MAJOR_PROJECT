@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { filesAPI } from '../utils/api';
 import { Button } from './ui/button';
 import {
@@ -19,27 +19,81 @@ import { MoreVertical, Download, History, FileText, Image as ImageIcon, FileCode
 import { toast } from 'sonner';
 import VersionHistory from './VersionHistory';
 import { formatDistanceToNow } from 'date-fns';
+import { formatBytes } from '../utils/constants';
+
+// Extract file icon logic to separate function
+const getFileIcon = (contentType) => {
+  const iconProps = { className: "w-4 h-4 text-indigo-600", strokeWidth: 1.5 };
+  
+  if (contentType.startsWith('image/')) return <ImageIcon {...iconProps} />;
+  if (contentType.includes('pdf') || contentType.includes('text')) return <FileText {...iconProps} />;
+  if (contentType.includes('code') || contentType.includes('javascript') || contentType.includes('python')) {
+    return <FileCode {...iconProps} />;
+  }
+  return <File {...iconProps} />;
+};
+
+// Extract file row component
+const FileRow = ({ file, onDownload, onShowVersions }) => {
+  return (
+    <TableRow
+      className="hover:bg-slate-50/50 transition-colors border-b border-slate-100 last:border-0"
+      data-testid={`file-row-${file.id}`}
+    >
+      <TableCell className="font-medium">
+        <div className="flex items-center gap-3">
+          {getFileIcon(file.content_type)}
+          <span className="text-slate-900 font-mono text-sm">{file.filename}</span>
+        </div>
+      </TableCell>
+      <TableCell className="text-slate-600">{formatBytes(file.size)}</TableCell>
+      <TableCell className="text-slate-600">
+        {formatDistanceToNow(new Date(file.uploaded_at), { addSuffix: true })}
+      </TableCell>
+      <TableCell>
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+          {file.version_count}
+        </span>
+      </TableCell>
+      <TableCell className="text-right">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0"
+              data-testid={`file-actions-${file.id}`}
+            >
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem
+              onClick={() => onDownload(file)}
+              data-testid={`download-${file.id}`}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Download
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => onShowVersions(file)}
+              data-testid={`versions-${file.id}`}
+            >
+              <History className="mr-2 h-4 w-4" />
+              Version History
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </TableCell>
+    </TableRow>
+  );
+};
 
 const FileList = ({ files, onFileChange }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [showVersions, setShowVersions] = useState(false);
 
-  const getFileIcon = (contentType) => {
-    if (contentType.startsWith('image/')) return <ImageIcon className="w-4 h-4 text-indigo-600" strokeWidth={1.5} />;
-    if (contentType.includes('pdf') || contentType.includes('text')) return <FileText className="w-4 h-4 text-indigo-600" strokeWidth={1.5} />;
-    if (contentType.includes('code') || contentType.includes('javascript') || contentType.includes('python')) return <FileCode className="w-4 h-4 text-indigo-600" strokeWidth={1.5} />;
-    return <File className="w-4 h-4 text-indigo-600" strokeWidth={1.5} />;
-  };
-
-  const formatBytes = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-  };
-
-  const handleDownload = async (file) => {
+  const handleDownload = useCallback(async (file) => {
     try {
       const response = await filesAPI.download(file.id);
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -53,12 +107,18 @@ const FileList = ({ files, onFileChange }) => {
     } catch (error) {
       toast.error('Download failed');
     }
-  };
+  }, []);
 
-  const handleShowVersions = (file) => {
+  const handleShowVersions = useCallback((file) => {
     setSelectedFile(file);
     setShowVersions(true);
-  };
+  }, []);
+
+  const handleCloseVersions = useCallback(() => {
+    setShowVersions(false);
+    setSelectedFile(null);
+    onFileChange();
+  }, [onFileChange]);
 
   if (files.length === 0) {
     return (
@@ -85,57 +145,12 @@ const FileList = ({ files, onFileChange }) => {
           </TableHeader>
           <TableBody>
             {files.map((file) => (
-              <TableRow
+              <FileRow
                 key={file.id}
-                className="hover:bg-slate-50/50 transition-colors border-b border-slate-100 last:border-0"
-                data-testid={`file-row-${file.id}`}
-              >
-                <TableCell className="font-medium">
-                  <div className="flex items-center gap-3">
-                    {getFileIcon(file.content_type)}
-                    <span className="text-slate-900 font-mono text-sm">{file.filename}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-slate-600">{formatBytes(file.size)}</TableCell>
-                <TableCell className="text-slate-600">
-                  {formatDistanceToNow(new Date(file.uploaded_at), { addSuffix: true })}
-                </TableCell>
-                <TableCell>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                    {file.version_count}
-                  </span>
-                </TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                        data-testid={`file-actions-${file.id}`}
-                      >
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuItem
-                        onClick={() => handleDownload(file)}
-                        data-testid={`download-${file.id}`}
-                      >
-                        <Download className="mr-2 h-4 w-4" />
-                        Download
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleShowVersions(file)}
-                        data-testid={`versions-${file.id}`}
-                      >
-                        <History className="mr-2 h-4 w-4" />
-                        Version History
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
+                file={file}
+                onDownload={handleDownload}
+                onShowVersions={handleShowVersions}
+              />
             ))}
           </TableBody>
         </Table>
@@ -145,11 +160,7 @@ const FileList = ({ files, onFileChange }) => {
         <VersionHistory
           file={selectedFile}
           open={showVersions}
-          onClose={() => {
-            setShowVersions(false);
-            setSelectedFile(null);
-            onFileChange();
-          }}
+          onClose={handleCloseVersions}
         />
       )}
     </>

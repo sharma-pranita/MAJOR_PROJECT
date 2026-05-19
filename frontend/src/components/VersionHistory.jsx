@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { filesAPI } from '../utils/api';
 import { Button } from './ui/button';
 import {
@@ -11,19 +11,77 @@ import {
 import { Download, RotateCcw, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
+import { formatBytes } from '../utils/constants';
+
+// Extract version item component
+const VersionItem = ({ version, index, totalVersions, onDownload, onRestore, restoring }) => {
+  const versionNumber = totalVersions - index;
+  const isRestoring = restoring === version.version_id;
+
+  return (
+    <div
+      className={`p-4 rounded-lg border transition-all ${
+        version.is_latest
+          ? 'border-l-4 border-l-indigo-500 bg-indigo-50 border-indigo-200'
+          : 'border-slate-200 bg-white hover:bg-slate-50'
+      }`}
+      data-testid={`version-${index}`}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="font-semibold text-slate-900">
+              Version {versionNumber}
+            </span>
+            {version.is_latest && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-600 text-white">
+                <CheckCircle2 className="w-3 h-3" />
+                Current
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-slate-600">
+            {formatDistanceToNow(new Date(version.uploaded_at), { addSuffix: true })}
+          </p>
+          <p className="text-xs text-slate-500 mt-1">{formatBytes(version.size)}</p>
+        </div>
+        <div className="flex gap-2 flex-shrink-0">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => onDownload(version.version_id)}
+            className="border-slate-300"
+            data-testid={`download-version-${index}`}
+          >
+            <Download className="w-4 h-4 mr-1" />
+            Download
+          </Button>
+          {!version.is_latest && (
+            <Button
+              size="sm"
+              onClick={() => onRestore(version.version_id)}
+              disabled={isRestoring}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              data-testid={`restore-version-${index}`}
+            >
+              <RotateCcw className="w-4 h-4 mr-1" />
+              {isRestoring ? 'Restoring...' : 'Restore'}
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const VersionHistory = ({ file, open, onClose }) => {
   const [versions, setVersions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [restoring, setRestoring] = useState(null);
 
-  useEffect(() => {
-    if (open && file) {
-      loadVersions();
-    }
-  }, [open, file]);
-
-  const loadVersions = async () => {
+  const loadVersions = useCallback(async () => {
+    if (!file) return;
+    
     try {
       const response = await filesAPI.getVersions(file.id);
       setVersions(response.data);
@@ -32,9 +90,15 @@ const VersionHistory = ({ file, open, onClose }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [file]);
 
-  const handleDownloadVersion = async (versionId) => {
+  useEffect(() => {
+    if (open && file) {
+      loadVersions();
+    }
+  }, [open, file, loadVersions]);
+
+  const handleDownloadVersion = useCallback(async (versionId) => {
     try {
       const response = await filesAPI.download(file.id, versionId);
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -48,9 +112,9 @@ const VersionHistory = ({ file, open, onClose }) => {
     } catch (error) {
       toast.error('Download failed');
     }
-  };
+  }, [file]);
 
-  const handleRestoreVersion = async (versionId) => {
+  const handleRestoreVersion = useCallback(async (versionId) => {
     if (restoring) return;
     
     setRestoring(versionId);
@@ -63,15 +127,7 @@ const VersionHistory = ({ file, open, onClose }) => {
     } finally {
       setRestoring(null);
     }
-  };
-
-  const formatBytes = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-  };
+  }, [file, restoring, loadVersions]);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -91,59 +147,15 @@ const VersionHistory = ({ file, open, onClose }) => {
           ) : (
             <div className="space-y-3">
               {versions.map((version, index) => (
-                <div
+                <VersionItem
                   key={version.version_id}
-                  className={`p-4 rounded-lg border transition-all ${
-                    version.is_latest
-                      ? 'border-l-4 border-l-indigo-500 bg-indigo-50 border-indigo-200'
-                      : 'border-slate-200 bg-white hover:bg-slate-50'
-                  }`}
-                  data-testid={`version-${index}`}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-slate-900">
-                          Version {versions.length - index}
-                        </span>
-                        {version.is_latest && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-600 text-white">
-                            <CheckCircle2 className="w-3 h-3" />
-                            Current
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm text-slate-600">
-                        {formatDistanceToNow(new Date(version.uploaded_at), { addSuffix: true })}
-                      </p>
-                      <p className="text-xs text-slate-500 mt-1">{formatBytes(version.size)}</p>
-                    </div>
-                    <div className="flex gap-2 flex-shrink-0">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDownloadVersion(version.version_id)}
-                        className="border-slate-300"
-                        data-testid={`download-version-${index}`}
-                      >
-                        <Download className="w-4 h-4 mr-1" />
-                        Download
-                      </Button>
-                      {!version.is_latest && (
-                        <Button
-                          size="sm"
-                          onClick={() => handleRestoreVersion(version.version_id)}
-                          disabled={restoring === version.version_id}
-                          className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                          data-testid={`restore-version-${index}`}
-                        >
-                          <RotateCcw className="w-4 h-4 mr-1" />
-                          {restoring === version.version_id ? 'Restoring...' : 'Restore'}
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                  version={version}
+                  index={index}
+                  totalVersions={versions.length}
+                  onDownload={handleDownloadVersion}
+                  onRestore={handleRestoreVersion}
+                  restoring={restoring}
+                />
               ))}
             </div>
           )}

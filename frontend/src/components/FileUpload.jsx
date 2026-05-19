@@ -3,6 +3,7 @@ import { filesAPI } from '../utils/api';
 import { Button } from './ui/button';
 import { CloudUpload, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatBytes } from '../utils/constants';
 
 const FileUpload = ({ onUploadSuccess }) => {
   const [uploading, setUploading] = useState(false);
@@ -30,13 +31,13 @@ const FileUpload = ({ onUploadSuccess }) => {
     }
   }, []);
 
-  const handleFileChange = (e) => {
+  const handleFileChange = useCallback((e) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
     }
-  };
+  }, []);
 
-  const handleUpload = async () => {
+  const handleUpload = useCallback(async () => {
     if (!selectedFile) return;
 
     setUploading(true);
@@ -57,15 +58,11 @@ const FileUpload = ({ onUploadSuccess }) => {
     } finally {
       setUploading(false);
     }
-  };
+  }, [selectedFile, onUploadSuccess]);
 
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-  };
+  const handleCancel = useCallback(() => {
+    setSelectedFile(null);
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -94,7 +91,7 @@ const FileUpload = ({ onUploadSuccess }) => {
             {selectedFile ? selectedFile.name : 'Drop files here or click to browse'}
           </p>
           {selectedFile && (
-            <p className="text-xs text-slate-500 mt-1">{formatFileSize(selectedFile.size)}</p>
+            <p className="text-xs text-slate-500 mt-1">{formatBytes(selectedFile.size)}</p>
           )}
         </div>
       </div>
@@ -110,7 +107,7 @@ const FileUpload = ({ onUploadSuccess }) => {
             {uploading ? `Uploading... ${progress}%` : 'Upload'}
           </Button>
           <Button
-            onClick={() => setSelectedFile(null)}
+            onClick={handleCancel}
             variant="outline"
             disabled={uploading}
             className="border-slate-300"

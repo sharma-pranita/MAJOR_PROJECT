@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { filesAPI } from '../utils/api';
 import { clearAuth, getAuth } from '../utils/auth';
@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Progress } from '../components/ui/progress';
 import { CloudUpload, FolderOpen, LogOut, HardDrive } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatBytes, STORAGE_LIMITS } from '../utils/constants';
 import FileUpload from '../components/FileUpload';
 import FileList from '../components/FileList';
 
@@ -17,7 +18,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const user = getAuth().user;
 
-  const loadFiles = async () => {
+  const loadFiles = useCallback(async () => {
     try {
       const response = await filesAPI.list();
       setFiles(response.data);
@@ -28,32 +29,23 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadFiles();
-  }, []);
+  }, [loadFiles]);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     clearAuth();
     navigate('/');
     toast.success('Logged out successfully');
-  };
+  }, [navigate]);
 
-  const handleUploadSuccess = () => {
+  const handleUploadSuccess = useCallback(() => {
     loadFiles();
-  };
+  }, [loadFiles]);
 
-  const formatBytes = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-  };
-
-  const storageLimit = 5 * 1024 * 1024 * 1024;
-  const storagePercent = (storageUsed / storageLimit) * 100;
+  const storagePercent = (storageUsed / STORAGE_LIMITS.DEFAULT_LIMIT) * 100;
 
   return (
     <div className="min-h-screen bg-slate-50" data-testid="dashboard-page">
@@ -97,7 +89,7 @@ const Dashboard = () => {
                   <span className="text-3xl font-bold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
                     {formatBytes(storageUsed)}
                   </span>
-                  <span className="text-sm text-slate-500 pb-1">/ {formatBytes(storageLimit)}</span>
+                  <span className="text-sm text-slate-500 pb-1">/ {formatBytes(STORAGE_LIMITS.DEFAULT_LIMIT)}</span>
                 </div>
                 <Progress value={storagePercent} className="h-2" data-testid="storage-progress" />
                 <p className="text-xs text-slate-500">{storagePercent.toFixed(1)}% used</p>
