@@ -15,15 +15,24 @@ import {
   TableHeader,
   TableRow,
 } from './ui/table';
-import { MoreVertical, Download, History, FileText, Image as ImageIcon, FileCode, File } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from './ui/alert-dialog';
+import { MoreVertical, Download, History, FileText, Image as ImageIcon, FileCode, File, Trash2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import VersionHistory from './VersionHistory';
 import { formatDistanceToNow } from 'date-fns';
 import { formatBytes } from '../utils/constants';
 
-// Extract file icon logic to separate function
 const getFileIcon = (contentType) => {
-  const iconProps = { className: "w-4 h-4 text-indigo-600", strokeWidth: 1.5 };
+  const iconProps = { className: "w-4 h-4 text-zinc-400", strokeWidth: 1.5 };
   
   if (contentType.startsWith('image/')) return <ImageIcon {...iconProps} />;
   if (contentType.includes('pdf') || contentType.includes('text')) return <FileText {...iconProps} />;
@@ -33,65 +42,90 @@ const getFileIcon = (contentType) => {
   return <File {...iconProps} />;
 };
 
-// Extract file row component
-const FileRow = ({ file, onDownload, onShowVersions }) => {
+const FileRow = ({ file, onDownload, onShowVersions, onDeleteClick }) => {
   return (
     <TableRow
-      className="hover:bg-slate-50/50 transition-colors border-b border-slate-100 last:border-0"
+      className="group hover:bg-zinc-900/40 transition-all duration-300 border-b border-zinc-900 last:border-0"
       data-testid={`file-row-${file.id}`}
     >
       <TableCell className="font-medium">
         <div className="flex items-center gap-3">
-          {getFileIcon(file.content_type)}
-          <span className="text-slate-900 font-mono text-sm">{file.filename}</span>
+          <div className="group-hover:scale-110 transition-transform duration-300">
+            {getFileIcon(file.content_type)}
+          </div>
+          <span className="text-white font-mono text-sm group-hover:translate-x-1.5 transition-transform duration-300 block">
+            {file.filename}
+          </span>
         </div>
       </TableCell>
-      <TableCell className="text-slate-600">{formatBytes(file.size)}</TableCell>
-      <TableCell className="text-slate-600">
+      <TableCell className="text-zinc-400">{formatBytes(file.size)}</TableCell>
+      <TableCell className="text-zinc-400">
         {formatDistanceToNow(new Date(file.uploaded_at), { addSuffix: true })}
       </TableCell>
       <TableCell>
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-800 text-zinc-300 border border-zinc-700 transition-colors duration-300 group-hover:border-zinc-500">
           {file.version_count}
         </span>
       </TableCell>
       <TableCell className="text-right">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-              data-testid={`file-actions-${file.id}`}
-            >
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem
-              onClick={() => onDownload(file)}
-              data-testid={`download-${file.id}`}
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Download
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => onShowVersions(file)}
-              data-testid={`versions-${file.id}`}
-            >
-              <History className="mr-2 h-4 w-4" />
-              Version History
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center justify-end gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 text-zinc-500 hover:text-red-400 hover:bg-red-950/30 hover:scale-110 active:scale-90 transition-all duration-200"
+            onClick={() => onDeleteClick(file)}
+            data-testid={`delete-${file.id}`}
+            title="Delete file"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 text-zinc-500 hover:text-white hover:bg-zinc-800 hover:scale-110 active:scale-90 transition-all duration-200"
+                data-testid={`file-actions-${file.id}`}
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48 bg-zinc-900 border-zinc-800 text-white">
+              <DropdownMenuItem
+                onClick={() => onDownload(file)}
+                data-testid={`download-${file.id}`}
+                className="hover:bg-zinc-800 hover:text-white focus:bg-zinc-800 focus:text-white cursor-pointer"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Download
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => onShowVersions(file)}
+                data-testid={`versions-${file.id}`}
+                className="hover:bg-zinc-800 hover:text-white focus:bg-zinc-800 focus:text-white cursor-pointer"
+              >
+                <History className="mr-2 h-4 w-4" />
+                Version History
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </TableCell>
     </TableRow>
   );
 };
 
 const FileList = ({ files, onFileChange }) => {
+  const [localFiles, setLocalFiles] = useState(files);
   const [selectedFile, setSelectedFile] = useState(null);
   const [showVersions, setShowVersions] = useState(false);
+  const [fileToDelete, setFileToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
+  React.useEffect(() => {
+    setLocalFiles(files);
+  }, [files]);
 
   const handleDownload = useCallback(async (file) => {
     try {
@@ -120,41 +154,96 @@ const FileList = ({ files, onFileChange }) => {
     onFileChange();
   }, [onFileChange]);
 
-  if (files.length === 0) {
+  const handleDeleteClick = useCallback((file) => {
+    setFileToDelete(file);
+  }, []);
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!fileToDelete) return;
+    setDeleting(true);
+
+    // Optimistically remove from UI immediately
+    setLocalFiles(prev => prev.filter(f => f.id !== fileToDelete.id));
+    setFileToDelete(null);
+
+    try {
+      await filesAPI.delete(fileToDelete.id);
+      toast.success(`"${fileToDelete.filename}" deleted successfully`);
+      onFileChange(); // sync parent state in background
+    } catch (error) {
+      // Restore the file in local state if the API call fails
+      setLocalFiles(prev => [...prev, fileToDelete]);
+      toast.error('Failed to delete file');
+    } finally {
+      setDeleting(false);
+    }
+  }, [fileToDelete, onFileChange]);
+
+  const handleDeleteCancel = useCallback(() => {
+    setFileToDelete(null);
+  }, []);
+
+  if (localFiles.length === 0) {
     return (
       <div className="text-center py-12" data-testid="empty-state">
-        <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" strokeWidth={1.5} />
-        <h3 className="text-lg font-semibold text-slate-900 mb-2">No files yet</h3>
-        <p className="text-slate-500">Upload your first file to get started</p>
+        <FileText className="w-16 h-16 text-zinc-700 mx-auto mb-4" strokeWidth={1.5} />
+        <h3 className="text-lg font-semibold text-white mb-2">No files yet</h3>
+        <p className="text-zinc-400">Upload your first file to get started</p>
       </div>
     );
   }
 
   return (
     <>
-      <div className="rounded-md border border-slate-200 overflow-hidden">
+      <div className="rounded-md border border-zinc-800 overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-slate-50 hover:bg-slate-50">
-              <TableHead className="font-medium text-slate-700">Name</TableHead>
-              <TableHead className="font-medium text-slate-700">Size</TableHead>
-              <TableHead className="font-medium text-slate-700">Uploaded</TableHead>
-              <TableHead className="font-medium text-slate-700">Versions</TableHead>
-              <TableHead className="font-medium text-slate-700 text-right">Actions</TableHead>
+            <TableRow className="bg-zinc-900/50 hover:bg-zinc-900/50">
+              <TableHead className="font-medium text-zinc-300">Name</TableHead>
+              <TableHead className="font-medium text-zinc-300">Size</TableHead>
+              <TableHead className="font-medium text-zinc-300">Uploaded</TableHead>
+              <TableHead className="font-medium text-zinc-300">Versions</TableHead>
+              <TableHead className="font-medium text-zinc-300 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {files.map((file) => (
+            {localFiles.map((file) => (
               <FileRow
                 key={file.id}
                 file={file}
                 onDownload={handleDownload}
                 onShowVersions={handleShowVersions}
+                onDeleteClick={handleDeleteClick}
               />
             ))}
           </TableBody>
         </Table>
       </div>
+
+      <AlertDialog open={!!fileToDelete} onOpenChange={(open) => !open && handleDeleteCancel()}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">Delete file?</AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-400">
+              This will permanently delete <span className="font-semibold text-white">"{fileToDelete?.filename}"</span> and all its version history. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              {deleting ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Deleting...</>
+              ) : (
+                'Delete'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {showVersions && selectedFile && (
         <VersionHistory

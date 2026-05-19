@@ -6,15 +6,14 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { CloudUpload } from 'lucide-react';
+import { Shield } from 'lucide-react';
 import { toast } from 'sonner';
 
-// Extract auth form component
 const AuthForm = ({ isLogin, email, password, loading, onEmailChange, onPasswordChange, onSubmit, onToggleMode }) => {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="email" className="text-sm font-medium text-slate-700">
+        <Label htmlFor="email" className="text-sm font-medium text-zinc-300">
           Email
         </Label>
         <Input
@@ -25,11 +24,11 @@ const AuthForm = ({ isLogin, email, password, loading, onEmailChange, onPassword
           onChange={(e) => onEmailChange(e.target.value)}
           required
           data-testid="email-input"
-          className="h-10 border-slate-300 focus:ring-2 focus:ring-indigo-400"
+          className="h-10 border-zinc-800 bg-zinc-950/60 text-white placeholder-zinc-500 focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:border-zinc-500 rounded-lg transition-all duration-200"
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password" className="text-sm font-medium text-slate-700">
+        <Label htmlFor="password" className="text-sm font-medium text-zinc-300">
           Password
         </Label>
         <Input
@@ -40,13 +39,13 @@ const AuthForm = ({ isLogin, email, password, loading, onEmailChange, onPassword
           onChange={(e) => onPasswordChange(e.target.value)}
           required
           data-testid="password-input"
-          className="h-10 border-slate-300 focus:ring-2 focus:ring-indigo-400"
+          className="h-10 border-zinc-800 bg-zinc-950/60 text-white placeholder-zinc-500 focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:border-zinc-500 rounded-lg transition-all duration-200"
         />
       </div>
       <Button
         type="submit"
         disabled={loading}
-        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white h-10 transition-all duration-200 hover:-translate-y-0.5 shadow-sm"
+        className="w-full bg-white hover:bg-zinc-200 text-black h-10 transition-all duration-200 active:scale-[0.98] hover:shadow-lg hover:shadow-white/10 font-semibold rounded-lg shadow-sm"
         data-testid="submit-button"
       >
         {loading ? 'Please wait...' : (isLogin ? 'Sign in' : 'Create account')}
@@ -55,7 +54,7 @@ const AuthForm = ({ isLogin, email, password, loading, onEmailChange, onPassword
         <button
           type="button"
           onClick={onToggleMode}
-          className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+          className="text-sm text-zinc-400 hover:text-white font-medium transition-colors duration-200 hover:underline decoration-zinc-600 underline-offset-4"
           data-testid="toggle-auth-mode"
         >
           {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
@@ -99,25 +98,29 @@ const Login = () => {
   }, [isLogin]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-zinc-950 px-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-xl mb-4">
-            <CloudUpload className="w-8 h-8 text-white" strokeWidth={1.5} />
+        <div 
+          className="text-center mb-8 cursor-pointer select-none active:scale-[0.98] transition-transform duration-200"
+          onClick={() => window.location.reload()}
+          title="Click to refresh page"
+        >
+          <div className="group inline-flex items-center justify-center w-16 h-16 bg-zinc-900 border border-zinc-800 rounded-2xl mb-4 shadow-xl ring-4 ring-zinc-900/50 hover:scale-105 active:scale-95 hover:border-zinc-700 transition-all duration-300">
+            <Shield className="w-8 h-8 text-white group-hover:rotate-12 transition-transform duration-300" strokeWidth={1.5} />
           </div>
-          <h1 className="text-4xl font-bold text-slate-900 tracking-tight" style={{ fontFamily: 'Manrope, sans-serif' }}>
-            CloudVault
+          <h1 className="text-4xl font-bold text-white tracking-tight" style={{ fontFamily: 'Manrope, sans-serif' }}>
+            CloudShield
           </h1>
-          <p className="text-slate-500 mt-2">Secure backup and recovery</p>
+          <p className="text-zinc-400 mt-2">Secure backup and recovery</p>
         </div>
 
-        <Card className="rounded-xl border border-slate-200 shadow-sm" data-testid="auth-card">
+        <Card className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-md shadow-2xl transition-all duration-300 hover:border-zinc-800" data-testid="auth-card">
           <CardHeader>
-            <CardTitle className="text-2xl font-semibold tracking-tight" style={{ fontFamily: 'Manrope, sans-serif' }}>
+            <CardTitle className="text-2xl font-semibold tracking-tight text-white" style={{ fontFamily: 'Manrope, sans-serif' }}>
               {isLogin ? 'Welcome back' : 'Create account'}
             </CardTitle>
-            <CardDescription className="text-slate-500">
-              {isLogin ? 'Sign in to access your backups' : 'Get started with CloudVault'}
+            <CardDescription className="text-zinc-400">
+              {isLogin ? 'Sign in to access your backups' : 'Get started with CloudShield'}
             </CardDescription>
           </CardHeader>
           <CardContent>

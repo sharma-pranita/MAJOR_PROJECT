@@ -71,10 +71,10 @@ const FileUpload = ({ onUploadSuccess }) => {
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
-        className={`relative border-2 border-dashed rounded-lg p-6 transition-all duration-200 ${
+        className={`relative border-2 border-dashed rounded-xl p-6 transition-all duration-200 ${
           dragActive
-            ? 'border-indigo-500 bg-indigo-50'
-            : 'border-slate-300 bg-slate-50 hover:bg-slate-100'
+            ? 'border-white bg-zinc-900/60'
+            : 'border-zinc-800 bg-zinc-900/10 hover:bg-zinc-900/30'
         }`}
         data-testid="file-upload-dropzone"
       >
@@ -86,12 +86,12 @@ const FileUpload = ({ onUploadSuccess }) => {
           data-testid="file-input"
         />
         <div className="text-center">
-          <CloudUpload className="w-8 h-8 text-indigo-600 mx-auto mb-2" strokeWidth={1.5} />
-          <p className="text-sm font-medium text-slate-700">
+          <CloudUpload className="w-8 h-8 text-white mx-auto mb-2" strokeWidth={1.5} />
+          <p className="text-sm font-medium text-zinc-300">
             {selectedFile ? selectedFile.name : 'Drop files here or click to browse'}
           </p>
           {selectedFile && (
-            <p className="text-xs text-slate-500 mt-1">{formatBytes(selectedFile.size)}</p>
+            <p className="text-xs text-zinc-500 mt-1">{formatBytes(selectedFile.size)}</p>
           )}
         </div>
       </div>
@@ -101,7 +101,7 @@ const FileUpload = ({ onUploadSuccess }) => {
           <Button
             onClick={handleUpload}
             disabled={uploading}
-            className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white transition-all duration-200 hover:-translate-y-0.5"
+            className="flex-1 bg-white hover:bg-zinc-200 text-black font-semibold shadow-sm transition-all duration-200 hover:-translate-y-0.5"
             data-testid="upload-button"
           >
             {uploading ? `Uploading... ${progress}%` : 'Upload'}
@@ -110,7 +110,7 @@ const FileUpload = ({ onUploadSuccess }) => {
             onClick={handleCancel}
             variant="outline"
             disabled={uploading}
-            className="border-slate-300"
+            className="border-zinc-800 bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-white"
             data-testid="cancel-upload-button"
           >
             <X className="w-4 h-4" />

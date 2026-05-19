@@ -5,7 +5,7 @@ import { clearAuth, getAuth } from '../utils/auth';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Progress } from '../components/ui/progress';
-import { CloudUpload, FolderOpen, LogOut, HardDrive } from 'lucide-react';
+import { Shield, FolderOpen, LogOut, HardDrive } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatBytes, STORAGE_LIMITS } from '../utils/constants';
 import FileUpload from '../components/FileUpload';
@@ -48,24 +48,28 @@ const Dashboard = () => {
   const storagePercent = (storageUsed / STORAGE_LIMITS.DEFAULT_LIMIT) * 100;
 
   return (
-    <div className="min-h-screen bg-slate-50" data-testid="dashboard-page">
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
+    <div className="min-h-screen bg-zinc-950 text-white animate-fade-in" data-testid="dashboard-page">
+      <header className="bg-zinc-900/80 backdrop-blur-md border-b border-zinc-800 sticky top-0 z-30 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
-              <CloudUpload className="w-6 h-6 text-white" strokeWidth={1.5} />
+          <div 
+            className="flex items-center gap-3 cursor-pointer select-none active:scale-[0.98] transition-transform duration-200"
+            onClick={() => window.location.reload()}
+            title="Click to refresh page"
+          >
+            <div className="group w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg ring-2 ring-zinc-800 hover:scale-105 active:scale-95 transition-all duration-300">
+              <Shield className="w-5 h-5 text-black group-hover:rotate-12 transition-transform duration-300" strokeWidth={2} />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight" style={{ fontFamily: 'Manrope, sans-serif' }}>
-                CloudVault
+              <h1 className="text-xl font-bold text-white tracking-tight" style={{ fontFamily: 'Manrope, sans-serif' }}>
+                CloudShield
               </h1>
-              <p className="text-xs text-slate-500">{user?.email}</p>
+              <p className="text-xs text-zinc-400">{user?.email}</p>
             </div>
           </div>
           <Button
             onClick={handleLogout}
             variant="ghost"
-            className="text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            className="text-zinc-400 hover:text-white hover:bg-zinc-800 active:scale-95 transition-all duration-200"
             data-testid="logout-button"
           >
             <LogOut className="w-4 h-4 mr-2" strokeWidth={1.5} />
@@ -76,58 +80,58 @@ const Dashboard = () => {
 
       <main className="max-w-7xl mx-auto p-4 md:p-8">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="rounded-xl border border-slate-200 shadow-sm" data-testid="storage-card">
+          <Card className="rounded-xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-md shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-zinc-700 hover:shadow-2xl hover:shadow-black/60 group cursor-pointer" data-testid="storage-card">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-slate-500 flex items-center gap-2">
-                <HardDrive className="w-4 h-4" strokeWidth={1.5} />
+              <CardTitle className="text-sm font-medium text-zinc-400 flex items-center gap-2">
+                <HardDrive className="w-4 h-4 text-zinc-400 group-hover:scale-110 group-hover:text-white transition-all duration-300" strokeWidth={1.5} />
                 Storage Used
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 <div className="flex items-end gap-2">
-                  <span className="text-3xl font-bold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
+                  <span className="text-3xl font-bold text-white" style={{ fontFamily: 'Manrope, sans-serif' }}>
                     {formatBytes(storageUsed)}
                   </span>
-                  <span className="text-sm text-slate-500 pb-1">/ {formatBytes(STORAGE_LIMITS.DEFAULT_LIMIT)}</span>
+                  <span className="text-sm text-zinc-500 pb-1">/ {formatBytes(STORAGE_LIMITS.DEFAULT_LIMIT)}</span>
                 </div>
-                <Progress value={storagePercent} className="h-2" data-testid="storage-progress" />
-                <p className="text-xs text-slate-500">{storagePercent.toFixed(1)}% used</p>
+                <Progress value={storagePercent} className="h-2 bg-zinc-800" data-testid="storage-progress" />
+                <p className="text-xs text-zinc-400">{storagePercent.toFixed(1)}% used</p>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="rounded-xl border border-slate-200 shadow-sm" data-testid="files-count-card">
+          <Card className="rounded-xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-md shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-zinc-700 hover:shadow-2xl hover:shadow-black/60 group cursor-pointer" data-testid="files-count-card">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-slate-500 flex items-center gap-2">
-                <FolderOpen className="w-4 h-4" strokeWidth={1.5} />
+              <CardTitle className="text-sm font-medium text-zinc-400 flex items-center gap-2">
+                <FolderOpen className="w-4 h-4 text-zinc-400 group-hover:scale-110 group-hover:text-white transition-all duration-300" strokeWidth={1.5} />
                 Total Files
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-slate-900" style={{ fontFamily: 'Manrope, sans-serif' }}>
+              <div className="text-3xl font-bold text-white" style={{ fontFamily: 'Manrope, sans-serif' }}>
                 {files.length}
               </div>
-              <p className="text-xs text-slate-500 mt-2">Backed up files</p>
+              <p className="text-xs text-zinc-400 mt-2">Backed up files</p>
             </CardContent>
           </Card>
 
-          <Card className="md:col-span-1 lg:col-span-2 rounded-xl border-2 border-dashed border-indigo-200 bg-white shadow-sm" data-testid="upload-card">
+          <Card className="md:col-span-1 lg:col-span-2 rounded-xl border-2 border-dashed border-zinc-800 bg-zinc-900/10 backdrop-blur-sm shadow-sm transition-all duration-300 hover:border-zinc-700" data-testid="upload-card">
             <CardContent className="p-6">
               <FileUpload onUploadSuccess={handleUploadSuccess} />
             </CardContent>
           </Card>
         </div>
 
-        <Card className="rounded-xl border border-slate-200 shadow-sm" data-testid="file-list-card">
+        <Card className="rounded-xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-md shadow-xl transition-all duration-300 hover:border-zinc-800" data-testid="file-list-card">
           <CardHeader>
-            <CardTitle className="text-2xl font-semibold tracking-tight" style={{ fontFamily: 'Manrope, sans-serif' }}>
+            <CardTitle className="text-2xl font-semibold tracking-tight text-white" style={{ fontFamily: 'Manrope, sans-serif' }}>
               Your Backups
             </CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="text-center py-12 text-slate-500">Loading files...</div>
+              <div className="text-center py-12 text-zinc-400">Loading files...</div>
             ) : (
               <FileList files={files} onFileChange={loadFiles} />
             )}

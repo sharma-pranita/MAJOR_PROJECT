@@ -1,12 +1,7 @@
 import { AUTH_CONFIG } from './constants';
 
-// Note: For production, consider implementing httpOnly cookies for enhanced security
-// Current localStorage implementation is vulnerable to XSS attacks
-// TODO: Migrate to secure httpOnly cookies with refresh token mechanism
-
 export const setAuth = (token, user) => {
   try {
-    // Store token with timestamp for expiry checking
     const authData = {
       token,
       timestamp: new Date().getTime()
@@ -22,23 +17,22 @@ export const getAuth = () => {
   try {
     const authDataStr = localStorage.getItem(AUTH_CONFIG.TOKEN_KEY);
     const userStr = localStorage.getItem(AUTH_CONFIG.USER_KEY);
-    
+
     if (!authDataStr || !userStr) {
       return { token: null, user: null };
     }
-    
+
     const authData = JSON.parse(authDataStr);
     const user = JSON.parse(userStr);
-    
-    // Check if token is expired (7 days)
+
     const expiryTime = AUTH_CONFIG.TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
     const isExpired = new Date().getTime() - authData.timestamp > expiryTime;
-    
+
     if (isExpired) {
       clearAuth();
       return { token: null, user: null };
     }
-    
+
     return {
       token: authData.token,
       user
