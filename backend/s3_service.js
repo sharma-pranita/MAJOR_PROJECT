@@ -8,7 +8,9 @@ class S3Service {
   constructor() {
     this.bucketName = config.s3BucketName;
     this.localMode = false;
-    this.localStoragePath = path.join(__dirname, 'local_storage');
+    this.localStoragePath = process.env.NODE_ENV === 'production'
+      ? '/tmp/cloudshield_storage'
+      : path.join(__dirname, 'local_storage');
 
     if (
       !config.awsAccessKeyId ||

@@ -30,8 +30,15 @@ const upload = multer({
 
 app.use(express.json());
 
+const allowedOrigins = config.corsOrigins
+  ? config.corsOrigins.split(',').map(o => o.trim())
+  : ['*'];
+
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  }
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Credentials', 'true');

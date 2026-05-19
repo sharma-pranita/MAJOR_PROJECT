@@ -21,3 +21,10 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Local env files
+.env
+.env.*
+
+# Backend local file storage (ephemeral fallback, never commit)
+../backend/local_storage/
