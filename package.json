@@ -5,7 +5,7 @@
   "scripts": {
     "install-all": "npm install && npm install --prefix backend && npm install --prefix frontend",
     "backend": "npm --prefix backend run dev",
-    "frontend": "npm --prefix frontend start",
+    "frontend": "set NODE_NO_WARNINGS=1 && npm --prefix frontend start",
     "dev": "concurrently \"npm run backend\" \"npm run frontend\""
   },
   "devDependencies": {
